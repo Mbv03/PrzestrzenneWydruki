@@ -29,7 +29,7 @@
     .container {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 0 20px;
+      padding: 0 8px;
       box-sizing: border-box;
     }
 
@@ -651,46 +651,6 @@
     color: white;
   }
 
-@media (max-width: 600px) {
-  .table-responsive table,
-  .table-responsive thead,
-  .table-responsive tbody,
-  .table-responsive th,
-  .table-responsive td,
-  .table-responsive tr {
-    display: block;
-  }
-  .table-responsive thead tr {
-    position: absolute; /* ukryj nagłówki w tabeli */
-    top: -9999px;
-    left: -9999px;
-  }
-  .table-responsive tr {
-    margin: 0 0 1rem 0;
-    border: 1px solid var(--accent-color);
-    border-radius: 8px;
-    padding: 10px;
-  }
-  .table-responsive td {
-    /* każda komórka jako wiersz z etykietą: */
-    position: relative;
-    padding-left: 50%;
-    text-align: left;
-  }
-  .table-responsive td::before {
-    position: absolute;
-    top: 50%;
-    left: 10px;
-    width: 45%;
-    transform: translateY(-50%);
-    white-space: nowrap;
-    font-weight: bold;
-  }
-  /* etykiety odpowiadające nagłówkom – kolejność jak w <th>: */
-  .table-responsive td:nth-of-type(1)::before { content: "Rodzaj Filamentu"; }
-  .table-responsive td:nth-of-type(2)::before { content: "Właściwości"; }
-  .table-responsive td:nth-of-type(3)::before { content: "Zastosowanie"; }
-}
 
 
 
