@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="PrzestrzenneWydruki.pl – Nowoczesne Technologie 3D: projektowanie i druk 3D.">
+  <meta name="keywords" content="3D, drukowanie 3D, CAD, projektowanie, FDM, technologie">
+  <title>PrzestrzenneWydruki</title>
+ <!-- <link rel="icon" href="logo1.png" type="image/png"> -->
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+        integrity="sha512-dPfDfzIjhv3qkYbIDbl9SxmEAt6wWX63b3aQOL6vKSRey1QYczCsyTgyQqGFTa5P2otxD65+XY4m5s+H1zBf9Q==" 
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    /* Reset stylów */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Uniwersalny kontener */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 15px;
+      box-sizing: border-box;
+    }
+
+    /* Zmienne CSS dla trybu jasnego */
+    :root {
+      --primary-color: #1a1a1a;
+      --secondary-color: #f4f4f4;
+      --accent-color: #ff6f61;
+      --text-color: #333;
+      --header-bg: linear-gradient(135deg, #1a1a1a, #333);
+      --animation-bg: #e0e0e0;
+      --table-cell-bg: var(--secondary-color);
+      --highlight-bg: #ffffff;
+    }
+    
+    /* Zmienne CSS dla trybu ciemnego */
+    .dark-mode {
+      --primary-color: #f4f4f4;
+      --secondary-color: #1a1a1a;
+      --accent-color: #ff6f61;
+      --text-color: #eee;
+      --header-bg: linear-gradient(135deg, #333, #1a1a1a);
+      --animation-bg: #555;
+      --header-bg-dark: rgba(0, 0, 0, 0.25);
+      --table-cell-bg: var(--secondary-color);
+      --highlight-bg: #3a3a3a;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: var(--secondary-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      padding-top: 80px;
+      transition: background 0.3s, color 0.3s;
+      overflow-x: hidden;
+    }
+
+    /* Efekt rozmycia dla zawartości, gdy modal jest widoczny */
+    #main-content.blurred {
+      filter: blur(5px);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* Style dla modalu */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 200;
+    }
+    .modal-content {
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      max-width: 90%;
+      color: #333;
+    }
+    /* Tryb ciemny dla modalu */
+    .dark-mode .modal-content {
+      background-color: #333;
+      color: #fff;
+    }
+    .modal-content p {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+    }
+    .modal-content .btn {
+      background: var(--accent-color);
+      border: none;
+      padding: 10px 20px;
+      color: #fff;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .modal-content .btn:hover {
+      background: #e65a54;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    body.loaded section {
+      animation: fadeIn 0.8s ease-out forwards;
+    }
+
+    /* Scroll reveal */
+    .reveal > * {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+    .reveal > *.active,
+    .reveal.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Nagłówek */
+    header {
+      backdrop-filter: blur(8px);
+      background: var(--header-bg);
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      transition: top 0.3s;
+      text-shadow: 0 0 3.5px rgb(255, 255, 255);
+    }
+    .dark-mode header {
+      background: var(--header-bg-dark);
+    }
+    header .logo {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    header .logo img {
+      height: 40px;
+      width: auto;
+    }
+    header nav {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    header nav a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+    header nav a:hover {
+      color: var(--accent-color);
+    }
+
+    /* Sekcja Hero */
+    .hero {
+      position: relative;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      background: var(--secondary-color);
+      overflow: hidden;
+      /* Ustawiamy wysokość na całą wysokość okna minus wysokość nagłówka (80px) */
+      height: calc(100vh - 80px);
+      padding: 40px;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('background.jpg') no-repeat center center;
+      background-size: cover;
+      opacity: 0.5;
+      z-index: 0;
+    }
+    .hero .content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      max-width: 800px;
+      padding: 20px;
+      transition: opacity 0.3s;
+    }
+    .hero .content h1 {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      color: var(--primary-color);
+      text-shadow: 0 0 1px rgb(26, 31, 184);
+    }
+    .hero .content p {
+      font-size: 1.2rem;
+      margin-bottom: 30px;
+    }
+    .btn {
+      background: var(--accent-color);
+      border: none;
+      padding: 15px 30px;
+      color: #fff;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .btn:hover {
+      background: #e65a54;
+    }
+
+    /* Kontener Three.js */
+    #three-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Sekcja Usług */
+    .services {
+      padding: 60px 40px;
+      background: #f7f7f7;
+      transition: background 0.3s, color 0.3s;
+    }
+    .services h2 {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 40px;
+      color: var(--accent-color);
+    }
+    .service-cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 40px;
+      justify-content: center;
+    }
+    .service {
+      background: #f9f9f9;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      flex: 1 1 280px;
+      max-width: 320px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      text-align: center;
+    }
+    .service:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+    }
+    .service h3 {
+      margin-bottom: 15px;
+      font-size: 1.8rem;
+      color: var(--accent-color);
+    }
+    .service p {
+      font-size: 1rem;
+      margin-top: 15px;
+    }
+    .service .icon {
+      font-size: 3rem;
+      color: var(--accent-color);
+      margin-bottom: 10px;
+    }
+
+    /* Sekcja Projekty i Wydruki */
+    .strona3 {
+      padding: 60px 40px;
+      background: #f0f0f0;
+      transition: background 0.3s, color 0.3s;
+    }
+    .strona3 h2 {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      color: var(--accent-color);
+    }
+    .strona3 p {
+      text-align: center;
+      font-size: 1.1rem;
+      margin-bottom: 30px;
+    }
+    .strona3-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+    .carousel {
+      position: relative;
+      max-width: 800px;
+      margin: 0 auto;
+      overflow: hidden;
+      border-radius: 10px;
+    }
+    .carousel-slides {
+      display: flex;
+      transition: transform 0.5s ease-in-out;
+    }
+    .carousel-slides img {
+      width: 100%;
+      flex-shrink: 0;
+      object-fit: contain;
+      max-height: 400px;
+    }
+    .carousel button {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0, 0, 0, 0.5);
+      border: none;
+      color: #fff;
+      padding: 10px;
+      cursor: pointer;
+      border-radius: 50%;
+      z-index: 10;
+    }
+    .carousel-prev {
+      left: 10px;
+    }
+    .carousel-next {
+      right: 10px;
+    }
+
+    /* Sekcja Druk 3D FDM */
+    .druk3d {
+      padding: 60px 40px;
+      background: #f5f5f5;
+      transition: background 0.3s, color 0.3s;
+    }
+    .druk3d h2,
+    .druk3d h3 {
+      text-align: center;
+      color: var(--accent-color);
+    }
+    .druk3d p,
+    .druk3d ul {
+      max-width: 800px;
+      margin: 10px auto;
+      font-size: 1.1rem;
+      line-height: 1.8;
+    }
+    .druk3d ul {
+      list-style-type: disc;
+      margin-left: 40px;
+    }
+    .druk3d a {
+      color: var(--accent-color);
+      text-decoration: none;
+    }
+    .druk3d a:hover {
+      text-decoration: underline;
+    }
+    .druk3d-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      max-width: 1200px;
+      margin: 0 auto 40px auto;
+    }
+    @media (max-width: 900px) {
+      .druk3d-content {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Sekcja Materiały Filamentowe */
+    .materialy {
+      padding: 60px 40px;
+      background: #f5f5f5;
+      transition: background 0.3s, color 0.3s;
+    }
+    .materialy h2,
+    .materialy h3 {
+      text-align: center;
+      color: var(--accent-color);
+    }
+    .materialy p {
+      text-align: center;
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+    }
+    .table-responsive {
+      width: 100%;
+    }
+    table {
+      width: 100%;
+      table-layout: fixed;
+      border-collapse: collapse;
+      margin: 20px auto;
+      max-width: 800px;
+    }
+    table, th, td {
+      border: 1px solid var(--accent-color);
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      white-space: normal;
+    }
+    th {
+      background-color: var(--accent-color);
+      color: #fff;
+    }
+    table td {
+      background-color: var(--table-cell-bg);
+    }
+    .materialy table.dostepne-filamenty {
+      margin-bottom: 40px;
+    }
+
+    /* Sekcja O mnie i O nazwie */
+    .about {
+      padding: 60px 40px;
+      background: #f7f7f7;
+      transition: background 0.3s, color 0.3s;
+    }
+    .about-content {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+      flex-wrap: wrap;
+    }
+    .about-text {
+      flex: 2;
+    }
+    .about-text h2 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      color: var(--accent-color);
+      text-align: left;
+    }
+    .about-text p {
+      font-size: 1.1rem;
+      line-height: 1.8;
+      text-align: justify;
+    }
+    @media (max-width: 900px) {
+      .about-content {
+        flex-direction: column;
+      }
+    }
+
+    /* Sekcja Kontakt */
+    .contact {
+      padding: 60px 40px;
+      background: #eaeaea;
+      transition: background 0.3s, color 0.3s;
+    }
+    .contact h2 {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      color: var(--accent-color);
+    }
+    .contact-info {
+      max-width: 600px;
+      margin: 0 auto;
+      text-align: center;
+      font-size: 1.1rem;
+      line-height: 1.8;
+    }
+
+    .highlight-bg {
+      background-color: var(--highlight-bg);
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+
+
+
+
+
+
+    /* -------------------------------
+   IZOLACJA .highlight-bg DLA Kontakt
+   ------------------------------- */
+#contact .highlight-bg {
+  /* tło i obłe rogi */
+  
+  border-radius: 10px;
+
+  /* ograniczenie szerokości (tak jak tabela) */
+  max-width: 800px;
+  width: 100%;
+
+  /* wyśrodkowanie w kontenerze */
+  margin: 0 auto;
+
+  /* więcej przestrzeni wewnątrz */
+  padding: 40px 30px;
+}
+
+    /* Stopka */
+    footer {
+      background: var(--primary-color);
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+      font-size: 0.9rem;
+      transition: background 0.3s, color 0.3s;
+    }
+    footer .social-links {
+      margin: 10px 0;
+    }
+    footer .social-links a {
+      color: var(--accent-color);
+      margin: 0 5px;
+      font-size: 1.2rem;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    footer .social-links a:hover {
+      color: #e65a54;
+    }
+    footer .made-with-ai {
+      display: block;
+      font-size: 0.75rem;
+      opacity: 0.5;
+      margin-top: 5px;
+      color: #bbb;
+    }
+   
+    
+
+    /* Tryb ciemny – modyfikacje */
+    .dark-mode .services { background: #282828; }
+    .dark-mode .services .service { background: #373737; }
+    .dark-mode .strona3 { background: #222222; }
+    .dark-mode .druk3d { background: #222222; }
+    .dark-mode .materialy { background: #222222; }
+    .dark-mode .about { background: #222222; }
+    .dark-mode .contact { background: #363636; }
+    .dark-mode .highlight-bg { background-color: #2d2d2d; }
+    .dark-mode footer { background: #222; color: #ccc; }
+    .dark-mode table, 
+    .dark-mode th, 
+    .dark-mode td { border-color: var(--accent-color); }
+    .dark-mode table td { background-color: var(--table-cell-bg); }
+    .dark-mode table th,
+    .dark-mode table td { color: white; }
+
+    body:not(.dark-mode) .strona3 { background: #f5f5f5; }
+    body:not(.dark-mode) table td { background-color: #ffffff; }
+    .dark-mode table td { background-color: #2a2a2a; }
+
+    @media (max-width: 900px) {
+      .hero { 
+        flex-direction: column; 
+        padding: 20px; 
+        height: calc(100vh - 80px); 
+      }
+      .hero .content h1 { font-size: 2.5rem; }
+      .hero .content p { font-size: 1rem; }
+      header { flex-direction: column; text-align: center; padding: 15px 20px; }
+      header nav { margin-top: 10px; }
+      .strona3-content { flex-direction: column; }
+      .services,
+      .strona3,
+      .druk3d,
+      .materialy,
+      .about,
+      .contact { padding: 40px 20px; }
+    }
+    @media (max-width: 480px) {
+      header .logo { font-size: 1.5rem; }
+      header nav a { font-size: 0.9rem; }
+      .carousel-slides img { max-height: 300px; }
+      table { max-width: 100%; }
+    }
+
+    /* Tryb jasny */
+    hr.separator {
+      border: none;
+      height: 2px;
+      background-color: #ccc;
+    }
+
+    /* Tryb ciemny */
+    .dark-mode hr.separator {
+      background-color: #444;
+    }
+
+  .body:not(.dark-mode) header {
+   
+  background: rgba(26, 26, 26, 0,9);}
+
+.rotated-90 {
+  transform: rotate(190deg);
+  height: 100px;
+  
+  opacity: 0.2;
+}
+.dark-mode .rotated-90{
+  opacity: 0.6;
+}
+
+
+  #reg {
+    color: white;
+  }
+  #po{
+    color: white;
+  }
+
+
+@media (max-width: 600px) {
+  /* zamiast .table-responsive używamy #filament-table */
+  #filament-table,
+  #filament-table thead,
+  #filament-table tbody,
+  #filament-table th,
+  #filament-table td,
+  #filament-table tr {
+    display: block;
+  }
+  #filament-table thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+  #filament-table tr {
+    margin: 0 0 0rem 0;
+    border: 0px solid var(--accent-color);
+    border-radius: 8px;
+    padding: 0px;
+  }
+  #filament-table td {
+    position: relative;
+    padding-left: 50%;
+    text-align: left;
+  }
+  #filament-table td::before {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    width: 45%;
+    transform: translateY(-50%);
+    white-space: nowrap;
+    font-weight: bold;
+  }
+  #filament-table td:nth-of-type(1)::before { content: "Rodzaj Filamentu"; }
+  #filament-table td:nth-of-type(2)::before { content: "Właściwości"; }
+  #filament-table td:nth-of-type(3)::before { content: "Zastosowanie"; }
+}
+
+
+
+
+  </style>
+</head>
+<body>
+  <!-- Modal z informacją -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <p>
+        Witamy na PrzestrzenneWydruki.pl!<br>
+        Obecnie nie przyjmujemy nowych zleceń. Prosimy o wyrozumiałość i zachęcamy do śledzenia naszych aktualności.
+      </p>
+      <button id="modal-close" class="btn">Zamknij</button>
+    </div>
+  </div>
+
+  <!-- Główna zawartość strony -->
+  <div id="main-content" class="blurred">
+    <!-- Nagłówek -->
+    <header id="main-header">
+      <a href="#home" class="logo">
+      <!--<img src="logo1.png" alt="Logo PrzestrzenneWydruki.pl">-->
+        Przestrzenne Wydruki
+      </a>
+      <nav>
+        <a href="#services">Usługi</a>
+        <a href="#strona3">Projekty</a>
+        <a href="#druk3d">Druk 3D</a>
+        <a href="#omnie">O mnie</a>
+        <a href="#contact">Kontakt</a>
+      </nav>
+    </header>
+
+    <!-- Sekcja Hero -->
+    <section class="hero" id="home">
+      <div id="three-container"></div>
+      <div class="content reveal">
+        <h1>Nowoczesne Technologie 3D</h1>
+        <p>Wykorzystaj potencjał druku 3D i projektowania CAD, aby stworzyć przyszłość już dziś</p>
+        <button class="btn" onclick="window.location.href='#services'">Poznaj Usługi</button>
+      </div>
+    </section>
+
+    <br>
+
+    <!-- Sekcja Usług -->
+    <section class="services reveal" id="services">
+      <div class="container">
+        <h2>Nasze Usługi</h2>
+        <div class="service-cards">
+          <div class="service">
+            <i class="fas fa-print icon"></i>
+            <h3>Drukowanie 3D</h3>
+            <p>Wykorzystaj najnowsze technologie druku 3D – precyzyjnie, szybko i bez minimalnej ceny zlecenia.</p>
+          </div>
+       <!--  <div class="service">
+            <i class="fas fa-drafting-compass icon"></i>
+            <h3>Projektowanie CAD</h3>
+            <p>Tworzę modele 3D oparte na precyzyjnych wymiarach oraz rysunkach technicznych. Posiadam certyfikat Autodesk Inventor.</p>
+          </div> -->
+        </div>
+      </div>
+    </section>
+
+    <hr class="separator">
+
+    <!-- Sekcja Projekty i Wydruki -->
+    <section class="strona3 reveal" id="strona3">
+      <div class="container">
+        <div class="strona3-content">
+          <div class="strona3-text">
+            <h2>Moje Projekty i Wydruki</h2>
+            <p>Zapraszam do zapoznania się z moimi realizacjami – zarówno projektami CAD, jak i wydrukami 3D.</p>
+          </div>
+          <div class="strona3-carousel">
+            <div class="carousel">
+              <div class="carousel-slides">
+                <img src="1.png" alt="Projekt 1">
+                <img src="2.png" alt="Projekt 2">
+                <img src="3.png" alt="Projekt 3">
+                <img src="4.png" alt="Projekt 4">
+                <img src="5.png" alt="Projekt 5">
+                <img src="6.png" alt="Projekt 6">
+              </div>
+              <button class="carousel-prev">&#10094;</button>
+              <button class="carousel-next">&#10095;</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sekcja Druk 3D FDM -->
+    <section class="druk3d reveal" id="druk3d">
+      <div class="container">
+        <div class="highlight-bg">
+          <div class="druk3d-content">
+            <div class="druk3d-text">
+              <br>
+              <h2>Drukowanie 3D FDM</h2>
+              <br>
+           <p>
+  Oferuję profesjonalne usługi druku 3D w technologii FDM. Dzięki precyzyjnemu nakładaniu warstw filamentu możliwe jest wykonywanie zarówno prostych dekoracji i elementów użytkowych, jak i bardziej skomplikowanych konstrukcji technicznych.
+</p>
+
+<p>
+  Na stronie głównej znajdziesz katalog polecanych modeli – część z nich pochodzi z serwisu Printables. Wystarczy, że pobierzesz plik, a następnie prześlesz go do mnie do wyceny i realizacji. Możesz też przesłać własny projekt w formacie STL lub OBJ.
+</p>
+
+<p>
+  Wybrane modele oznaczone są jako dostępne z licencją komercyjną – zostały one wykupione przeze mnie bezpośrednio od autorów. Mimo że na stronach takich jak Printables są one udostępniane wyłącznie do użytku niekomercyjnego, moi klienci otrzymują prawo do ich komercyjnego wykorzystania w ramach realizacji zamówienia.
+</p>
+
+<p>
+  Przesyłając plik do druku, klient oświadcza, że posiada prawa do jego wykorzystania i nie narusza praw osób trzecich. W przypadku korzystania z niektórych, oznaczonych modeli z mojego katalogu z licencją – licencję uzyskuje ode mnie wraz z realizacją usługi.
+</p>
+
+<p>
+  Wycena jest zawsze darmowa, a koszt wykonania zależy od materiału, parametrów druku oraz czasu realizacji. Nie obowiązuje minimalna wartość zamówienia. Maksymalne wymiary wydruku to 310 × 310 × 400 mm. Koszt wysyłki gotowego produktu naliczany jest zgodnie z cennikiem przewoźnika.
+</p>
+
+<p>
+  Jeśli nie wiesz, jaki materiał wybrać, opisz zastosowanie i warunki, w jakich wydruk będzie używany – pomogę dobrać odpowiedni filament i parametry druku.
+</p>
+
+<p><em>Regulamin oraz polityka prywatności dostępne są w stopce strony.</em></p>
+
+
+
+              <center>
+                <p><br><button class="btn" onclick="window.location.href='#contact'">Skontaktuj się</button></p>
+              </center>
+            </div>
+            <div class="druk3d-details">
+              <div class="druk3d-section">
+                <br>
+                <h3>Co można wydrukować?</h3>
+                <br>
+                <ul>
+                  <li>Ozdoby / Dekoracje</li>
+                  <li>Elementy użytkowe</li>
+                  <li>Elementy konstrukcyjne</li>
+                  <li>Inne</li>
+                </ul>
+              </div><br>
+              <div class="druk3d-section">
+                <h3>Gdzie szukać modeli?</h3><br>
+                <ul>
+                  <li><a href="https://www.thingiverse.com" target="_blank">Thingiverse</a></li>
+                  <li><a href="https://www.printables.com" target="_blank">Printables</a></li>
+                  <li><a href="#" target="_blank">Makerword</a></li>
+                  <li><a href="#" target="_blank">Makeronline</a></li>
+                </ul>
+              </div><br><br><br>
+               <center>
+                <p><br><button class="btn" onclick="window.location.href=''">Katalog</button></p>
+                <img src="1strzala.svg" alt="strzalka" class="rotated-90">
+              </center>
+            </div>
+             
+          </div>
+          
+        </div>
+      </div>
+    </section>
+
+    <!-- Sekcja Materiały Filamentowe -->
+    <section class="materialy reveal" id="materialy">
+      <div class="container">
+        <h2>Materiały Filamentowe</h2>
+        <div class="table-responsive">
+          <h3>Porównanie filamentów</h3>
+          <table id="filament-table" class="table-responsive">
+            <thead>
+              <tr>
+                <th>Rodzaj Filamentu</th>
+                <th>Właściwości</th>
+                <th>Zastosowanie</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>PLA</td>
+                <td>
+                  Łatwy w druku, biodegradowalny, wysoka sztywność, niska odporność na wysokie temperatury (do około 55°C). 
+                  Wydruki są zazwyczaj matowe i schludne. Nie łączy sie z innymi filamentami.
+                </td>
+                <td>Ozdoby, dekoracje, modele edukacyjne</td>
+              </tr>
+              <tr>
+                <td>PETG</td>
+                <td>
+                  Wytrzymały, elastyczny, odporny na uderzenia, lepsza odporność na temperaturę (do około 75°C). 
+                  Zazwyczaj materiał ten charakteryzuje się połyskiem. Nie łączy się z innymi filamentami.
+                </td>
+                <td>Elementy użytkowe, konstrukcyjne, prototypy</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <br><br>
+        <div class="table-responsive">
+          <h3>Dostępne filamenty i kolory</h3>
+          <table class="dostepne-filamenty">
+            <thead>
+              <tr>
+                <th>Rodzaj Filamentu</th>
+                <th>Kolor</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>PETG</td>
+                <td>Czarny</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <hr class="separator">
+
+    <!-- Sekcja O mnie i O nazwie -->
+    <section class="about reveal" id="omnie">
+      <div class="container">
+        <div class="about-content">
+          <div class="about-text">
+            <h2><center>O mnie i o nazwie</center></h2>
+           
+            <p> <center>
+              Nazywam się <strong>XYZ</strong> i studiuję informatykę przemysłową, stale rozwijając swoje umiejętności. Specjalizuję się w projektowaniu CAD oraz modelowaniu 3D, potwierdzonym certyfikatem Autodesk Inventor. Moja pasja do technologii 3D znalazła odzwierciedlenie w nazwie PrzestrzenneWymiary.pl.
+           </center> </p>
+            
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="separator">
+
+    <!-- Sekcja Kontakt -->
+    <section class="contact reveal" id="contact">
+      <div class="container">
+        <div class="highlight-bg">
+          <h2>Kontakt</h2>
+          <div class="contact-info">
+            <p>Masz pytania? Skontaktuj się z nami!</p> <br>
+            <p>Email: xyz</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    <hr class="separator">
+
+    <!-- Stopka -->
+    <footer class="reveal">
+      <div class="social-links">
+        <a href="https://www.facebook.com/profile.php?id=61572841342662" target="_blank" title="Facebook">
+          <i class="fab fa-facebook-f"></i> Facebook
+        </a>
+        <a href="https://www.printables.com/@MBV03_2636752/models" target="_blank" title="Printables">
+          <i class="fas fa-print"></i> Printables
+        </a>
+         <div id="linki">
+    <a href="" id="reg" target="_blank">Regulamin</a> ||
+    <a href="" id="po" target="_blank">Polityka prywatności</a>
+  </div>
+
+      </div>
+      <p>2025 Przestrzenne Wydruki</p>
+      <p class="made-with-ai">Wspomagane przez AI</p>
+    </footer>
+  </div>
+
+  <!-- Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    // Automatyczny wybór trybu (ciemny/jasny) na podstawie pory dnia
+    (function() {
+      const currentHour = new Date().getHours();
+      if (currentHour >= 20 || currentHour < 6) {
+        document.body.classList.add('dark-mode');
+      }
+    })();
+
+    window.addEventListener('load', () => {
+      document.body.classList.add('loaded');
+    });
+
+    // Three.js – scena, kamera, renderer
+    const container = document.getElementById('three-container');
+    const scene = new THREE.Scene();
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    container.appendChild(renderer.domElement);
+
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 3;
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(5, 5, 5);
+    scene.add(directionalLight);
+
+    const geometry = new THREE.BoxGeometry(3.5, 3.5, 3.5);
+    const wireframe = new THREE.WireframeGeometry(geometry);
+    const material = new THREE.LineBasicMaterial({ 
+      color: 0xff6f61, 
+      transparent: true, 
+      opacity: document.body.classList.contains('dark-mode') ? 0.34 : 0.79
+    });
+    const cube = new THREE.LineSegments(wireframe, material);
+    scene.add(cube);
+
+    function animate() {
+      requestAnimationFrame(animate);
+      cube.rotation.x += 0.0019;
+      cube.rotation.y += 0.0019;
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // Połączony nasłuchiwacz scroll – ukrywanie nagłówka, zmiana kolorów (tryb ciemny) oraz animacja fade-out treści Hero
+    let lastScroll = window.pageYOffset;
+    const header = document.getElementById('main-header');
+    window.addEventListener('scroll', () => {
+      const currentScroll = window.pageYOffset;
+      const headerHeight = header.offsetHeight;
+
+      // Ukrywanie/pokazywanie nagłówka
+      header.style.top = (currentScroll > lastScroll && currentScroll > 100) ? `-${headerHeight}px` : "0";
+      lastScroll = currentScroll;
+
+      // Zmiana kolorów nagłówka dla trybu ciemnego
+      if (document.body.classList.contains('dark-mode')) {
+        const heroSection = document.querySelector(".hero");
+        const heroBottom = heroSection.offsetTop + heroSection.offsetHeight;
+        if (window.scrollY > heroBottom) {
+          header.style.color = "#fff";
+          header.querySelectorAll("a, i").forEach(el => {
+            el.style.color = "#fff";
+            el.style.textShadow = "none";
+          });
+        } else {
+          header.style.color = "#eee";
+          header.querySelectorAll("a, i").forEach(el => {
+            el.style.color = "#eee";
+            el.style.textShadow = "0 0 3.5px rgb(255, 255, 255)";
+          });
+        }
+      }
+
+      // Animacja zanikania treści w sekcji Hero
+      const heroContent = document.querySelector('.hero .content');
+      if(heroContent) {
+        const fadeOutDistance = 590;
+        let opacity = 1 - (window.scrollY / fadeOutDistance);
+        heroContent.style.opacity = opacity < 0 ? 0 : opacity;
+      }
+    });
+
+    // Scroll reveal
+    const revealObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const children = entry.target.children;
+          if (children.length > 0) {
+            Array.from(children).forEach((child, index) => {
+              setTimeout(() => child.classList.add('active'), index * 150);
+            });
+          } else {
+            entry.target.classList.add('active');
+          }
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    // Karuzela obrazów
+    (function() {
+      const carousel = document.querySelector('.carousel');
+      if (carousel) {
+        const slidesContainer = carousel.querySelector('.carousel-slides');
+        const slides = slidesContainer.querySelectorAll('img');
+        const prevButton = carousel.querySelector('.carousel-prev');
+        const nextButton = carousel.querySelector('.carousel-next');
+        let currentIndex = 0;
+        const totalSlides = slides.length;
+        
+        function updateCarousel() {
+          slidesContainer.style.transform = 'translateX(-' + (currentIndex * 100) + '%)';
+        }
+        
+        function showNextSlide() {
+          currentIndex = (currentIndex + 1) % totalSlides;
+          updateCarousel();
+        }
+        
+        function showPrevSlide() {
+          currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+          updateCarousel();
+        }
+        
+        nextButton.addEventListener('click', () => {
+          showNextSlide();
+          resetTimer();
+        });
+        
+        prevButton.addEventListener('click', () => {
+          showPrevSlide();
+          resetTimer();
+        });
+        
+        let slideInterval = setInterval(showNextSlide, 3000);
+        
+        function resetTimer() {
+          clearInterval(slideInterval);
+          slideInterval = setInterval(showNextSlide, 3000);
+        }
+      }
+    })();
+
+    // Obsługa modalu – usunięcie efektu rozmycia po zamknięciu
+    document.getElementById('modal-close').addEventListener('click', function() {
+      document.getElementById('modal').style.display = 'none';
+      document.getElementById('main-content').classList.remove('blurred');
+    });
+  </script>
+</body>
+</html>
