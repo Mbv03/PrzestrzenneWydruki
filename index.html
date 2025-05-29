@@ -29,7 +29,7 @@
     .container {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 0 5px;
+      padding: 0 15px;
       box-sizing: border-box;
     }
 
@@ -692,7 +692,11 @@
   #filament-table td:nth-of-type(3)::before { content: "Zastosowanie"; }
 }
 
-
+@media (max-width: 600px) {
+  /* mniej wewnętrznego marginesu w kontenerze */
+  .container {
+    padding: 0 3px;
+  }
 
 
   </style>
